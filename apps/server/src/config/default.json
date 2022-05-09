@@ -6,8 +6,8 @@
       "RCTCKey":""
     },
     "port": 3333,
-    "authCertificate": "",
-    "fhirServerBase": "",
+    "authCertificate": "-----BEGIN CERTIFICATE-----\n\n-----END CERTIFICATE-----",
+    "fhirServerBase": "http://ersd-hapi-fhir-1:8080/hapi-fhir-jpaserver/fhir",
     "rctcExcelPath": "assets/rctc.xlsx",
     "bundlePath": "assets/bundle.xml",
     "subscriptionCriteria": "Bundle?",
@@ -53,9 +53,9 @@
   },
   "client": {
     "keycloak": {
-      "url": "",
-      "realm": "",
-      "clientId": ""
+      "url": "http://localhost:8085/auth",
+      "realm": "ersd",
+      "clientId": "ersd-app"
     }
   }
 }

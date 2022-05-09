@@ -1,4 +1,4 @@
-FROM ubuntu AS build-ersd
+FROM ubuntu:16.04 AS build-ersd
 
 RUN apt-get update && \
 	apt-get install curl -y
