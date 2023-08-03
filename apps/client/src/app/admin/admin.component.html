@@ -80,7 +80,7 @@
         <ng-template ngbNavContent>
           <div class="form-group">
             <label>RCTC Files</label>
-            <input type="file" class="form-control" (change)="handleExcelFileInput($any($event).target.files)" #excelUploadFile [class.is-invalid]="!excelFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            <input type="file" class="form-control" (change)="handleExcelFileInput($any($event).target.files)" #excelUploadFile [class.is-invalid]="!excelFile" accept=".zip" />
           </div>
 
           <button type="button" class="btn btn-primary" (click)="uploadExcel()" [disabled]="!excelFile">Upload</button>
