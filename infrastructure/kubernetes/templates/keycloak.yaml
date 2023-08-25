@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: ersd
+spec:
+  type: LoadBalancer
+  selector:
+    app: keycloak
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+  namespace: ersd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - image: quay.io/keycloak/keycloak:21.1.1
+          imagePullPolicy: IfNotPresent
+          command: ["/opt/keycloak/bin/kc.sh", "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start"]
+          name: keycloak
+          env:
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              value: jdbc:postgresql://ersd-keycloak.cdarvwauzkgh.us-east-1.rds.amazonaws.com:5432/postgres
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HOSTNAME
+              value: aa991ab66ca5841a1a65bc6f37293203-2009854043.us-east-1.elb.amazonaws.com
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KEYCLOAK_ADMIN
+              value: admin
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ersd-app-secrets
+                  key: keycloak-admin-password
+            - name: KC_DB_USERNAME
+              value: ersd
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ersd-app-secrets
+                  key: keycloak-db-password
+          ports:
+            - containerPort: 8080
+              protocol: TCP

@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ersd-hapi-fhir
+  namespace: ersd
+spec:
+  type: LoadBalancer
+  selector:
+    app: ersd-hapi-fhir
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ersd-hapi-fhir
+  labels:
+    app: ersd-hapi-fhir
+  namespace: ersd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ersd-hapi-fhir
+  template:
+    metadata:
+      labels:
+        app: ersd-hapi-fhir
+    spec:
+      containers:
+        - image: 912275679263.dkr.ecr.us-east-1.amazonaws.com/ersd/hapi-fhir:latest
+          imagePullPolicy: Always
+          name: ersd-hapi-fhir
+          env:
+            - name: DATASOURCE_DRIVER
+              value: org.h2.Driver
+            - name: DATASOURCE_URL
+              value: jdbc:h2:file:/var/lib/jetty/target/database/h2
+            - name: HIBERNATE_DIALECT
+              value: org.hibernate.dialect.H2Dialect
+            - name: SERVER_ADDRESS
+              value: http://ersd-hapi-fhir:8080/hapi-fhir-jpaserver/fhir
+            - name: DATASOURCE_USERNAME
+              value: hapi_user
+            - name: DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ersd-app-secrets
+                  key: hapi-db-password
+          ports:
+            - containerPort: 8080
+              protocol: TCP

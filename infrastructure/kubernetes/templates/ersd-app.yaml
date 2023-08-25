@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ersd-app
+  namespace: ersd
+spec:
+  type: LoadBalancer
+  selector:
+    app: ersd-app
+  ports:
+  - name: http 
+    port: 80
+    targetPort: 3333
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ersd-app
+  namespace: ersd
+  labels:
+    app: ersd-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ersd-app
+  template:
+    metadata:
+      labels:
+        app: ersd-app
+    spec:
+      containers:
+      - image: 912275679263.dkr.ecr.us-east-1.amazonaws.com/ersd/app:latest
+        name: ersd-app
+        imagePullPolicy: Always
+        env:
+        - name: AWS_REGION
+          value: us-east-1
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: ersd-app-secrets
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ersd-app-secrets
+              key: AWS_SECRET_ACCESS_KEY
+        ports:
+        - containerPort: 3333
+          protocol: TCP
