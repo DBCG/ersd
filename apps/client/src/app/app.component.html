@@ -1,113 +1,146 @@
 <div class="app-container">
-  <nav class="navbar navbar-expand-md navbar-dark bg-aims">
-    <a
-      class="navbar-brand"
-      href="#"
-      title="Electronic Reporting and Surveillance Distribution"
-    >
-      <img class="ersd-logo" src="/assets/ersd-logo.png" />
-    </a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarCollapse"
-      aria-controls="navbarCollapse"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item" [class.active]="homeLink.isActive">
-          <a
-            class="nav-link"
-            routerLink="/home"
-            routerLinkActive
-            #homeLink="routerLinkActive"
-            >Home <span class="sr-only">(current)</span></a
+
+  <div class="fixed-top">
+    <nav class="navbar navbar-expand-md navbar-dark bg-aims">
+      <a
+        class="navbar-brand"
+        href="/"
+        title="Electronic Reporting and Surveillance Distribution"
+      >
+        <img class="ersd-logo" src="/assets/ersd-logo.png" />
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarCollapse"
+        aria-controls="navbarCollapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item" [class.active]="homeLink.isActive">
+            <a
+              class="nav-link"
+              routerLink="/home"
+              routerLinkActive
+              #homeLink="routerLinkActive"
+              >Home <span class="sr-only">(current)</span></a
+            >
+          </li>
+          <li
+            class="nav-item"
+            *ngIf="authService.loggedIn"
+            [class.active]="subscriptionLink.isActive"
           >
-        </li>
-        <li
-          class="nav-item"
-          *ngIf="authService.loggedIn"
-          [class.active]="subscriptionLink.isActive"
-        >
-          <a
-            class="nav-link"
-            routerLink="/subscription"
-            routerLinkActive
-            #subscriptionLink="routerLinkActive"
-            >Notification</a
+            <a
+              class="nav-link"
+              routerLink="/subscription"
+              routerLinkActive
+              #subscriptionLink="routerLinkActive"
+              >Notification</a
+            >
+          </li>
+          <li
+            class="nav-item"
+            *ngIf="authService.loggedIn"
+            [class.active]="apiKeysLink.isActive"
           >
-        </li>
-        <li
-          class="nav-item"
-          *ngIf="authService.loggedIn"
-          [class.active]="apiKeysLink.isActive"
-        >
-          <a
-            class="nav-link"
-            routerLink="/api-keys"
-            routerLinkActive
-            #apiKeysLink="routerLinkActive"
-            >Polling</a
+            <a
+              class="nav-link"
+              routerLink="/api-keys"
+              routerLinkActive
+              #apiKeysLink="routerLinkActive"
+              >Polling</a
+            >
+          </li>
+          <li
+            class="nav-item"
+            *ngIf="authService.loggedIn"
+            [class.active]="releaseCandidateLink.isActive"
           >
-        </li>
-        <li
-          class="nav-item"
-          *ngIf="authService.loggedIn"
-          [class.active]="contactInfoLink.isActive"
-        >
-          <a
-            class="nav-link"
-            routerLink="/contact-info"
-            routerLinkActive
-            #contactInfoLink="routerLinkActive"
-            >Contact Info</a
+            <a
+              class="nav-link"
+              routerLink="/release-candidate"
+              routerLinkActive
+              #releaseCandidateLink="routerLinkActive"
+              >Release Candidate</a
+            >
+          </li>
+          <li
+            class="nav-item"
+            *ngIf="authService.loggedIn"
+            [class.active]="contactInfoLink.isActive"
           >
-        </li>
-        <li
-          class="nav-item"
-          *ngIf="authService.loggedIn && authService.isAdmin"
-          [class.active]="adminLink.isActive"
-        >
-          <a
-            class="nav-link"
-            routerLink="/admin"
-            routerLinkActive
-            #adminLink="routerLinkActive"
-            >Admin</a
+            <a
+              class="nav-link"
+              routerLink="/contact-info"
+              routerLinkActive
+              #contactInfoLink="routerLinkActive"
+              >Contact Info</a
+            >
+          </li>
+          <li
+            class="nav-item"
+            *ngIf="authService.loggedIn && authService.isAdmin"
+            [class.active]="adminLink.isActive"
           >
-        </li>
-      </ul>
-    </div>
-    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item" *ngIf="authService.loggedIn">
-          <a class="nav-link" routerLink="/contact-info">
-            <i class="fas fa-user"></i> {{ authService.fullName }}
-          </a>
-        </li>
-        <li class="nav-item clickable" *ngIf="authService.loggedIn">
-          <a class="nav-link" (click)="authService.logout()">
-            <i class="fas fa-sign-out-alt"></i> Sign out
-          </a>
-        </li>
-        <li class="nav-item clickable" *ngIf="!authService.loggedIn">
-          <a class="nav-link" (click)="authService.login()">
-            <i class="fas fa-sign-in-alt"></i> Sign in
-          </a>
-        </li>
-        <li class="nav-item clickable" *ngIf="!authService.loggedIn">
-          <a class="nav-link" (click)="authService.register()">
-            <i class="fas fa-user-plus"></i> Register
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+            <a
+              class="nav-link"
+              routerLink="/admin"
+              routerLinkActive
+              #adminLink="routerLinkActive"
+              >Admin</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item" *ngIf="authService.loggedIn">
+            <a class="nav-link" routerLink="/contact-info">
+              <i class="fas fa-user"></i> {{ authService.fullName }}
+            </a>
+          </li>
+          <li class="nav-item clickable" *ngIf="authService.loggedIn">
+            <a class="nav-link" (click)="authService.logout()">
+              <i class="fas fa-sign-out-alt"></i> Sign out
+            </a>
+          </li>
+          <li class="nav-item clickable" *ngIf="!authService.loggedIn">
+            <a class="nav-link" (click)="authService.login()">
+              <i class="fas fa-sign-in-alt"></i> Sign in
+            </a>
+          </li>
+          <li class="nav-item clickable" *ngIf="!authService.loggedIn">
+            <a class="nav-link" (click)="authService.register()">
+              <i class="fas fa-user-plus"></i> Register
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <a 
+    routerLinkActive
+    #releaseCandidateLink="routerLinkActive"
+    routerLink="/release-candidate">
+   
+
+    <div *ngIf="showNotification && authService.loggedIn" class="notification d-flex justify-content-between px-3">
+      <span> <i class="far fa-flag pr-3"></i>
+      A release candidate is now available!
+    </span>
+
+    <span>VIEW
+      <i class="fas fa-external-link-alt pl-2"></i>
+    </span>
+
+  </div>
+  </a>
+  </div>
   <main role="main" class="container">
     <div *ngIf="authService.person"><router-outlet></router-outlet></div>
     <div class="home-grid-container" *ngIf="!authService.loggedIn">

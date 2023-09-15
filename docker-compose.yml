@@ -52,6 +52,8 @@ services:
       - postgres
   web:
     build: .
+    dns: 
+      - 8.8.8.8
     ports:
       - 3333:3333
     volumes:

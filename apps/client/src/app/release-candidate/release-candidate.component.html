@@ -1,0 +1,45 @@
+<div class="api-keys-container">
+    <div class="heading-container">
+      <h2 class="section-heading">Release Candidate version</h2>
+    </div>
+  
+    <!-- <div class="page-info api-keys-info">
+      <p>This release is under development and subject to change</p>
+    </div> -->
+
+    <div class="alert alert-info border-0" >
+      <div class="row align-items-center">
+        <div class="col">
+          <div>
+            <h2>Release Candidate v1.3.0-draft</h2>
+            <p><span><i class="fas fa-flag pr-3"></i></span>This release is under development and subject to change</p>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card text-center ml-auto" style="width: 20rem;">
+            <div class="card-header bg-danger text-light p-0">Downloads</div>
+            <div class="card-body p-1">
+              <p class="mb-0">
+                eRSD v1 Draft (
+                  <button name="ersdv1-draft-json" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">JSON</button> | 
+                  <button name="ersdv1-draft-xml" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">XML</button>
+                )
+              </p>
+    
+              <p class="mb-0">
+                eRSD v2 Draft (
+                  <button name="ersdv2-draft-json" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">JSON</button> | 
+                  <button name="ersdv2-draft-xml" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">XML</button>
+                )
+              </p>
+            </div>
+          </div>
+        </div>
+    </div>
+
+      <div markdown
+          [data]="markdownContent"
+          [disableSanitizer]="true">
+      </div>
+    </div>
+  </div>

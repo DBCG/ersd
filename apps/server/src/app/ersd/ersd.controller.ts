@@ -25,7 +25,7 @@ export class eRSDController {
   constructor(private httpService: HttpService, private appService: AppService) {
   }
 
-  private validFormat(format): boolean { return format === 'xml' || format === 'json' }
+  private validFormat(format): boolean { return format === 'xml' || format === 'json' || format ==='md'}
   
   private assertApiKey(request: Request): Promise<Person> {
     let authorization: string;
@@ -175,5 +175,36 @@ export class eRSDController {
     } else {
       return response.set({'Content-Type': 'application/json'}).json(JSON.parse(body))
     }
+  }
+
+  // Markdown functions
+  @Get('markdown')
+  async getMarkdown(@Response() response: Res) {
+
+    const Bucket = this.appService.serverConfig.payload.Bucket;
+    const Key = this.appService.serverConfig.payload.ERSD_RELEASE_CANDIDATE_KEY_MD_KEY
+    
+
+    if (typeof Bucket === 'undefined' || Bucket === '' || Key === '') {
+      const errorMessage = 'Failed to download from S3, no Bucket or Key specified'
+      this.logger.error(errorMessage);
+      throw Error(errorMessage);
+    } 
+
+    const s3client = new S3();
+    const params = {
+      Bucket,
+      Key,
+    };
+
+    try {
+      const data = await s3client.getObject(params).promise();
+      response.set('Content-Type', 'text/markdown');
+      response.send(data.Body.toString());
+    } catch (error) {
+      console.error('Error fetching Markdown from S3:', error);
+      return response.status(500).json({ error: 'Error fetching Markdown from S3' });
+    }
+
   }
 }

@@ -1,5 +1,5 @@
 nav {
-  margin-bottom: 0px;
+  /* margin-bottom: 0px; */
   background-image: url(../assets/nav-bg.png);
   background-size: cover;
   position: fixed;
@@ -53,4 +53,24 @@ nav > li > a {
   height: 100px;
   margin: auto;
   margin-bottom: 100px;
+}
+
+
+.navbar {
+  position: relative; /* Add relative positioning to the navbar */
+}
+
+.notification {
+  position: absolute;
+  /* bottom: 0; */
+  left: 0;
+  width: 100%;
+  background-color: #094045; /* Change this to your desired background color */
+  color: #fff; /* Change this to your desired text color */
+  padding: 10px;
+  text-align: center;
+}
+
+.far.fa-flag {
+color: #EDAF10;
 }

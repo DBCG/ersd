@@ -147,6 +147,75 @@ export class DownloadController {
       return {url}
   }
 
+  @Post('release-candidate-v1-draft-json')
+  @UseGuards(AuthGuard())
+  async downloadReleaseCandidateV1DraftJSON() {
+    const Bucket = this.appService.serverConfig.payload.Bucket;
+      const s3client = new S3();
+      const Key = this.appService.serverConfig.payload. ERSDV1_DRAFT_CANDIDATE_JSON_KEY;
+      const ResponseContentDisposition = `attachment; filename="ReleaseCandidateV1Draft.json"`;
+
+      const params = {
+        Bucket,
+        Key,
+        ResponseContentDisposition,
+      }
+      const url = await s3client.getSignedUrlPromise('getObject', params);
+      return {url}
+  }
+
+  @Post('release-candidate-v1-draft-xml')
+  @UseGuards(AuthGuard())
+  async downloadReleaseCandidateV1DraftXML() {
+    const Bucket = this.appService.serverConfig.payload.Bucket;
+      const s3client = new S3();
+      const Key = this.appService.serverConfig.payload. ERSDV2_DRAFT_CANDIDATE_XML_KEY;
+      const ResponseContentDisposition = `attachment; filename="ReleaseCandidateV1Draft.xml"`;
+
+      const params = {
+        Bucket,
+        Key,
+        ResponseContentDisposition,
+      }
+      const url = await s3client.getSignedUrlPromise('getObject', params);
+      return {url}
+  }
+
+  @Post('release-candidate-v2-draft-json')
+  @UseGuards(AuthGuard())
+  async downloadReleaseCandidateV2DraftJSON() {
+    const Bucket = this.appService.serverConfig.payload.Bucket;
+      const s3client = new S3();
+      const Key = this.appService.serverConfig.payload. ERSDV2_DRAFT_CANDIDATE_JSON_KEY;
+      const ResponseContentDisposition = `attachment; filename="ReleaseCandidateV2Draft.json"`;
+
+      const params = {
+        Bucket,
+        Key,
+        ResponseContentDisposition,
+      }
+      const url = await s3client.getSignedUrlPromise('getObject', params);
+      return {url}
+  }
+
+  @Post('release-candidate-v2-draft-xml')
+  @UseGuards(AuthGuard())
+  async downloadReleaseCandidateV2DraftXML() {
+    const Bucket = this.appService.serverConfig.payload.Bucket;
+      const s3client = new S3();
+      const Key = this.appService.serverConfig.payload. ERSDV2_DRAFT_CANDIDATE_XML_KEY;
+      const ResponseContentDisposition = `attachment; filename="ReleaseCandidateV2Draft.xml"`;
+
+      const params = {
+        Bucket,
+        Key,
+        ResponseContentDisposition,
+      }
+      const url = await s3client.getSignedUrlPromise('getObject', params);
+      return {url}
+  }
+
+
   @Post('release_notes')
   @UseGuards(AuthGuard())
   async downloadNotes() {
