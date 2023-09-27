@@ -30,24 +30,18 @@ export class ReleaseCandidateComponent implements OnInit {
 
   }  
 
-  async getReleaseCandidate(e) {
+  async getReleasePreview(e) {
     let url = "";
 
     const button = e.target as HTMLButtonElement;
     this.draftVersion = button.name;
 
     // this.draftVersion = e.target.value  // eRSD Draft V1 or V2
-    if (this.draftVersion == 'ersdv1-draft-json') {  
-      url = 'api/download/release-candidate-v1-draft-json'
-    } 
-    if (this.draftVersion == 'ersdv1-draft-xml') {
-      url = 'api/download/release-candidate-v1-draft-xml'
-    }
     if (this.draftVersion == 'ersdv2-draft-json') {  
-      url = 'api/download/release-candidate-v2-draft-json'
+      url = 'api/download/change-preview-json'
     } 
     if (this.draftVersion == 'ersdv2-draft-xml') {
-      url = 'api/download/release-candidate-v2-draft-xml'
+      url = 'api/download/change-preview-xml'
     }
 
     this.httpClient

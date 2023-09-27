@@ -18,18 +18,11 @@
         <div class="col">
           <div class="card text-center ml-auto" style="width: 20rem;">
             <div class="card-header bg-danger text-light p-0">Downloads</div>
-            <div class="card-body p-1">
-              <p class="mb-0">
-                eRSD v1 Draft (
-                  <button name="ersdv1-draft-json" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">JSON</button> | 
-                  <button name="ersdv1-draft-xml" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">XML</button>
-                )
-              </p>
-    
+            <div class="card-body p-1">   
               <p class="mb-0">
                 eRSD v2 Draft (
-                  <button name="ersdv2-draft-json" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">JSON</button> | 
-                  <button name="ersdv2-draft-xml" class="btn btn-link p-0" (click)="getReleaseCandidate($event)">XML</button>
+                  <button name="ersdv2-draft-json" class="btn btn-link p-0" (click)="getReleasePreview($event)">JSON</button> | 
+                  <button name="ersdv2-draft-xml" class="btn btn-link p-0" (click)="getReleasePreview($event)">XML</button>
                 )
               </p>
             </div>

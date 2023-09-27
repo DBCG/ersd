@@ -12,11 +12,9 @@
       "ERSDV2_SPECIFICATION_JSON_KEY": "eRSDv2_specification_bundle.json",
       "ERSDV2_SPECIFICATION_XML_KEY": "eRSDv2_specification_bundle.xml",
       "ERSD_RELEASE_DESCRIPTION_KEY": "latestersdreleasedescription.txt",
-      "ERSDV1_DRAFT_CANDIDATE_JSON_KEY": "eRSDv1_draft_candidate.json",
-      "ERSDV1_DRAFT_CANDIDATE_XML_KEY": "eRSDv1_draft_candidate.xml",
-      "ERSDV2_DRAFT_CANDIDATE_JSON_KEY": "eRSDv2_draft_candidate.json",
-      "ERSDV2_DRAFT_CANDIDATE_XML_KEY": "eRSDv2_draft_candidate.xml",
-      "ERSD_RELEASE_CANDIDATE_KEY_MD_KEY": "ersd_release_candidate.md"
+      "ERSDV2_CHANGE_PREVIEW_JSON_KEY": "eRSDv2_change_preview.json",
+      "ERSDV2_CHANGE_PREVIEW_XML_KEY": "eRSDv2_change_preview.xml",
+      "ERSDV2_CHANGE_PREVIEW_SUMMARY_KEY": "eRSDv2_change_preview_summary.md"
     },
     "port": 3333,
     "authCertificate": "",

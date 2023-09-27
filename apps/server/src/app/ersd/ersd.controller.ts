@@ -182,7 +182,7 @@ export class eRSDController {
   async getMarkdown(@Response() response: Res) {
 
     const Bucket = this.appService.serverConfig.payload.Bucket;
-    const Key = this.appService.serverConfig.payload.ERSD_RELEASE_CANDIDATE_KEY_MD_KEY
+    const Key = this.appService.serverConfig.payload.ERSDV2_CHANGE_PREVIEW_SUMMARY_KEY
     
 
     if (typeof Bucket === 'undefined' || Bucket === '' || Key === '') {
