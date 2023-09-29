@@ -42,3 +42,7 @@ table > thead > tr > th:last-child {
 .attachment-button {
   float: right;
 }
+
+.form-control {
+  height: initial;
+}

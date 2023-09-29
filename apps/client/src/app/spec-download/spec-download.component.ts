@@ -96,8 +96,6 @@ export class SpecDownloadComponent implements OnInit {
   }
   
   async downloadS3(data: PayloadDownload) {
-    // console.log("downloadS3")
-    // console.log(data)
     var a = document.createElement('a');
     a.href = data.url;
     a.style.display = 'none';
@@ -111,10 +109,6 @@ export class SpecDownloadComponent implements OnInit {
   async downloadExcel() {
     try {
       const data = await firstValueFrom(this.httpClient.post('/api/download/excel', this.request)) as PayloadDownload;
-      
-      // console.log("downloadExcel")
-      // console.log(data)
-
       await this.downloadS3(data);
     } catch (err) {
       console.log(err);
