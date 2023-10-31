@@ -15,7 +15,7 @@ import * as fs from 'fs';
 import * as Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
 import * as SMTPConnection from 'nodemailer/lib/smtp-connection';
-import { buildFhirUrl, validateEmail } from '../helper';
+import { validateEmail } from '../helper';
 
 
 @Controller('upload')
@@ -168,7 +168,11 @@ export class UploadController {
     const emails = subscriptions?.data?.entry?.map(i => {
       if (i?.resource?.status !== 'active' || i?.resource?.channel?.type !== 'email') return;
       const email = i?.resource?.channel?.endpoint?.split('mailto:')?.[1]
-      if (validateEmail(email)) return email;
+      if (validateEmail(email)) {
+        return email;
+      } else {
+        this.logger.error(`Invalid email address ${email}`);
+      }
     })
 
     this.logger.log('Creating email transport to send emails');
