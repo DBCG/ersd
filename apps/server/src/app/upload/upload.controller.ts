@@ -1,4 +1,4 @@
-import {Body, Controller, Logger, Post, Req, UseGuards} from '@nestjs/common';
+import {Body, Controller, Logger, Post, Req, UseGuards, InternalServerErrorException} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 
 import {AuthGuard} from '@nestjs/passport';
@@ -8,9 +8,15 @@ import {IUploadRequest} from '../../../../../libs/ersdlib/src/lib/upload-request
 import {Fhir} from 'fhir/fhir';
 import {IBundle} from '../../../../../libs/ersdlib/src/lib/bundle';
 import {AppService} from '../app.service';
+import {SentMessageInfo} from 'nodemailer/lib/smtp-transport';
 import S3 from 'aws-sdk/clients/s3';
 import path from "path";
 import * as fs from 'fs';
+import * as Mail from 'nodemailer/lib/mailer';
+import * as nodemailer from 'nodemailer';
+import * as SMTPConnection from 'nodemailer/lib/smtp-connection';
+import { buildFhirUrl, validateEmail } from '../helper';
+
 
 @Controller('upload')
 export class UploadController {
@@ -54,15 +60,16 @@ export class UploadController {
         throw e;
       }
     }
-
-
   }
 
   @Post('bundle')
   @UseGuards(AuthGuard())
   async uploadBundle(@Req() request: AuthRequest, @Body() body: IUploadRequest) {
-
     this.appService.assertAdmin(request);
+
+    if (!this.appService.emailConfig.host || !this.appService.emailConfig.port) {
+      throw new Error('Email has not been configured on this server');
+    }
 
     this.logger.log('Admin is uploading a bundle');
 
@@ -128,32 +135,79 @@ export class UploadController {
       throw e;
     }
 
-    this.logger.log('Posting the transaction to the FHIR server');
+    this.logger.log('Begin process to send emails for upload update');
+
+    const transportOptions: SMTPConnection.Options = {
+      host: this.appService.emailConfig.host,
+      port: this.appService.emailConfig.port,
+      requireTLS: this.appService.emailConfig.tls
+    };
+
+    if (this.appService.emailConfig.username && this.appService.emailConfig.password) {
+      transportOptions.auth = {
+        user: this.appService.emailConfig.username,
+        pass: this.appService.emailConfig.password
+      };
+    }
+    else {
+      transportOptions.secure = false;
+    }
+
+    const tos = JSON.stringify(transportOptions);
+    this.logger.log(`transportOptions ${tos}`);
+
+    this.logger.log('Getting all people registered in the FHIR server');
+    // const people = await this.getAllPeople(request);
+    const url = this.appService.buildFhirUrl('Subscription', null);
+    const subscriptions = await this.httpService.request({
+      url,
+      headers: {
+        'cache-control': 'no-cache'
+      }}).toPromise()
+    // @ts-ignore
+    const emails = subscriptions?.data?.entry?.map(i => {
+      if (i?.resource?.status !== 'active' || i?.resource?.channel?.type !== 'email') return;
+      const email = i?.resource?.channel?.endpoint?.split('mailto:')?.[1]
+      if (validateEmail(email)) return email;
+    })
+
+    this.logger.log('Creating email transport to send emails');
+    const transporter = nodemailer.createTransport(transportOptions);
+
+    const sendMessage = (options: Mail.Options) => {
+      return new Promise<SentMessageInfo>((resolve, reject) => {
+        transporter.sendMail(options, (err, info) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(info);
+          }
+        });
+      });
+    };
+
+    const sendPromises = emails
+      .map((email) => {
+        const mailMessage: Mail.Options = {
+          from: this.appService.emailConfig.from,
+          to: email,
+          subject: Constants.defaultEmailSubject,
+          text: body.message + '\n\n' + Constants.defaultEmailBody
+        };
+        return sendMessage(mailMessage);
+      });
+
+    this.logger.log(`Sending email to ${sendPromises.length} people`);
 
     try {
-      const requestUrl = this.appService.buildFhirUrl(resource.resourceType, resource.id);
-      let response;
+      const sendResults = await Promise.all(sendPromises);
 
-      const config = {
-        maxContentLength: 2147483648,
-        maxBodyLength: 2147483648,
-
-      }
-      if (resource.id) {
-        response = await this.httpService.put(requestUrl, resource, config).toPromise();
-      } else {
-        response = await this.httpService.post(requestUrl, resource, config).toPromise();
-      }
-
-      this.logger.log('Done uploading to FHIR server');
+      sendResults.forEach((result) => {
+        this.logger.log(`Successfully sent message with ID: ${result.messageId}`);
+      });
     } catch (ex) {
-      this.logger.error(`Error occurred while posting the transaction to the FHIR server: ${ex.status} - ${ex.message}`);
-
-      if (ex.response && ex.response.data) {
-        this.logger.error(ex.response.data);
-      }
-
-      throw ex;
+      this.logger.error(`Error sending email to all registered users: ${ex.message}`);
+      throw new InternalServerErrorException();
     }
   }
 }

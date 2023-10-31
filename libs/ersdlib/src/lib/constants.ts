@@ -1,6 +1,7 @@
 
 export class Constants {
   static readonly authPrefix = 'Authorization: Bearer ';
+  static readonly defaultEmailSubject = 'Electronic Case Reporting Update Notification';
   static readonly defaultEmailBody = '\n---------------------------\n' +
     '\n' +
     'Thank you for using the eRSD notification service. eRSD distributions should always be implemented in a timely manner to address critical public health surveillance needs.';

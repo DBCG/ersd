@@ -4,7 +4,7 @@ services:
     image: hapiproject/hapi:v6.8.0
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 1
     ports:
       - "8081-8083:8080"
     environment:
