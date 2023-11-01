@@ -1,5 +1,6 @@
-import {Body, Controller, Logger, Post, Req, UseGuards, InternalServerErrorException} from '@nestjs/common';
+import {Body, Controller, Logger, Post, Req, Res, Header, UseGuards, InternalServerErrorException, StreamableFile, BadRequestException} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Parser } from '@json2csv/plainjs';
 
 import {AuthGuard} from '@nestjs/passport';
 import type { AuthRequest } from '../auth-module/auth-request';
@@ -10,13 +11,17 @@ import {IBundle} from '../../../../../libs/ersdlib/src/lib/bundle';
 import {AppService} from '../app.service';
 import {SentMessageInfo} from 'nodemailer/lib/smtp-transport';
 import S3 from 'aws-sdk/clients/s3';
-import path from "path";
+import path, { join } from "path";
 import * as fs from 'fs';
 import * as Mail from 'nodemailer/lib/mailer';
 import * as nodemailer from 'nodemailer';
 import * as SMTPConnection from 'nodemailer/lib/smtp-connection';
 import { validateEmail } from '../helper';
+import { createReadStream, writeFileSync, unlinkSync } from 'fs';
 
+interface EmailExportRequest {
+  exportTypeOrigin: 'Subscription' | 'Person';
+}
 
 @Controller('upload')
 export class UploadController {
@@ -59,6 +64,67 @@ export class UploadController {
         this.logger.error(`Failed to upload RCTC excel to s3 ${JSON.stringify(e)}`);
         throw e;
       }
+    }
+  }
+
+  @Post('export')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="emails.csv"')  
+  @UseGuards(AuthGuard())
+  async exportEmails(@Req() request: AuthRequest, @Res({ passthrough: true }) res: Response, @Body() body: EmailExportRequest) {
+    this.appService.assertAdmin(request);
+    const exportTypeOrigin = body.exportTypeOrigin;
+    if (exportTypeOrigin !== 'Subscription' && exportTypeOrigin !== 'Person') throw new BadRequestException('Invalid export type origin');
+    this.logger.log('Admin exporting email list from fhir resource:' + exportTypeOrigin);
+    this.logger.log('Getting all people registered in the FHIR server');
+    const url = this.appService.buildFhirUrl(exportTypeOrigin, null);
+    let emails = []
+    const response = await this.httpService.request({
+      url,
+      headers: {
+        'cache-control': 'no-cache'
+      }}).toPromise()
+    // @ts-ignore
+    if (exportTypeOrigin === 'Subscription') {
+      response?.data?.entry?.forEach((i) => {
+        if (i?.resource?.status !== 'active' || i?.resource?.channel?.type !== 'email') return;
+        const email = i?.resource?.channel?.endpoint?.split('mailto:')?.[1]
+        if (validateEmail(email)) {
+          emails.push(email)
+        } else {
+          this.logger.error(`Invalid email address ${email}`);
+        }
+      })
+    } else if (exportTypeOrigin === 'Person') {
+      response?.data?.entry?.forEach(i => {
+        const email = i?.resource?.telecom?.find(j => j.system === 'email')?.value
+        if (validateEmail(email)) {
+          emails.push(email)
+        } else {
+          this.logger.error(`Invalid email address ${email}`);
+        }
+      })
+    } else {
+      throw new Error('Invalid export type origin');
+    }
+    this.logger.log('Found ' + emails.length + ' emails')
+    try {
+      this.logger.log('Converting emails to CSV');
+      const parser = new Parser();
+      const csv = parser.parse(emails.map(i => ({email: i})));
+      writeFileSync('tmp.csv', csv)
+
+      const stream = createReadStream(join(process.cwd(), 'tmp.csv'))
+      stream.on('end', () => {
+        try{
+          unlinkSync('tmp.csv');
+        } catch (error) {
+          this.logger.warn('An error occurred while removing tmp file.');
+        }
+      })
+      return new StreamableFile(stream);
+    } catch (err) {
+      this.logger.error('Error converting emails to CSV', err);
     }
   }
 
