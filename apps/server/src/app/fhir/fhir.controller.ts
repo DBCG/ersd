@@ -51,7 +51,7 @@ export class FhirController {
       });
   }
 
-  @All()
+  @All('*')
   async getData(@Req() request: Request) {
     await this.assertApiKey(request);
     let fhirPart = request.originalUrl.substring('/api/fhir'.length);
