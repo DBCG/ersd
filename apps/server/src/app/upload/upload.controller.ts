@@ -15,7 +15,7 @@ import { validateEmail } from '../helper';
 import { createReadStream, writeFileSync, unlinkSync } from 'fs';
 
 interface EmailExportRequest {
-  exportTypeOrigin: 'Subscription' | 'Person';
+  exportTypeOrigin: 'Subscription' | 'Person' | 'Both';
 }
 
 @Controller('upload')
@@ -64,18 +64,9 @@ export class UploadController {
 
   }
 
-  @Post('export')
-  @Header('Content-Type', 'text/csv')
-  @Header('Content-Disposition', 'attachment; filename="emails.csv"')  
-  @UseGuards(AuthGuard())
-  async exportEmails(@Req() request: AuthRequest, @Res({ passthrough: true }) res: Response, @Body() body: EmailExportRequest) {
-    this.appService.assertAdmin(request);
-    const exportTypeOrigin = body.exportTypeOrigin;
-    if (exportTypeOrigin !== 'Subscription' && exportTypeOrigin !== 'Person') throw new BadRequestException('Invalid export type origin');
-    this.logger.log('Admin exporting email list from fhir resource:' + exportTypeOrigin);
-    this.logger.log('Getting all people registered in the FHIR server');
+  async getEmails(exportTypeOrigin: string) {
     const url = this.appService.buildFhirUrl(exportTypeOrigin, null);
-    let emails = []
+    let emails: string[] = []
     const response = await this.httpService.request({
       url,
       headers: {
@@ -92,17 +83,36 @@ export class UploadController {
           this.logger.error(`Invalid email address ${email}`);
         }
       })
-    } else if (exportTypeOrigin === 'Person') {
-      response?.data?.entry?.forEach(i => {
-        const email = i?.resource?.telecom?.find(j => j.system === 'email')?.value
-        if (validateEmail(email)) {
-          emails.push(email)
-        } else {
-          this.logger.error(`Invalid email address ${email}`);
-        }
-      })
+      } else if (exportTypeOrigin === 'Person') {
+        response?.data?.entry?.forEach(i => {
+          const email = i?.resource?.telecom?.find(j => j.system === 'email')?.value
+          if (validateEmail(email)) {
+            emails.push(email)
+          } else {
+            this.logger.error(`Invalid email address ${email}`);
+          }
+        })
+      }
+    return emails
+  }
+
+  @Post('export')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="emails.csv"')  
+  @UseGuards(AuthGuard())
+  async exportEmails(@Req() request: AuthRequest, @Res({ passthrough: true }) res: Response, @Body() body: EmailExportRequest) {
+    this.appService.assertAdmin(request);
+    const exportTypeOrigin = body.exportTypeOrigin;
+    if (exportTypeOrigin !== 'Subscription' && exportTypeOrigin !== 'Person' && exportTypeOrigin !== 'Both') throw new BadRequestException('Invalid export type origin');
+    this.logger.log('Admin exporting email list from fhir resource:' + exportTypeOrigin);
+    this.logger.log('Getting all people registered in the FHIR server');
+    let emails: string[] = []
+    if (exportTypeOrigin === 'Both') {
+      const personEmails = await this.getEmails('Person');
+      const subscriptionEmails = await this.getEmails('Subscription');
+      emails = [...new Set([...personEmails, ...subscriptionEmails])] // get unique array of emails
     } else {
-      throw new Error('Invalid export type origin');
+      emails = await this.getEmails(exportTypeOrigin);
     }
     this.logger.log('Found ' + emails.length + ' emails')
     try {
