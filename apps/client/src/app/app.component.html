@@ -1,6 +1,6 @@
 <div class="app-container">
   <navigation></navigation>
-  <main role="main" class="container w-75 pb-3">
+  <main role="main" class="container w-85 pb-3">
     <div *ngIf="authService.person"><router-outlet></router-outlet></div>
     <div *ngIf="!authService.loggedIn">
       <div>
@@ -39,7 +39,7 @@
       </div>
     </div>
   </main>
-  <footer class="container w-75 text-center text-light mb-3">
+  <footer class="container w-85 text-center text-light mb-3">
 
     <p class="fw-bold mb-0">Contact Us</p>
     <p class="mb-0"> For general eRSD inquiries please contact: <a href="mailto:eCR-Info@aimsplatform.org?subject=eRSD Site Inquiry" class="fw-bold-email">eCR-Info@aimsplatform.org</a>
