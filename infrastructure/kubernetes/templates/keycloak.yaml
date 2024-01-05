@@ -30,7 +30,7 @@ spec:
         app: keycloak
     spec:
       containers:
-        - image: quay.io/keycloak/keycloak:21.1.2
+        - image: 912275679263.dkr.ecr.us-east-1.amazonaws.com/ersd/keycloak
           imagePullPolicy: IfNotPresent
           command: ["/opt/keycloak/bin/kc.sh", "--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true", "start"]
           name: keycloak
