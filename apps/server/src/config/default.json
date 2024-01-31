@@ -30,7 +30,7 @@
     },
     "port": 3333,
     "authCertificate": "",
-    "fhirServerBase": "http://ersd-hapi-fhir:8080/hapi-fhir-jpaserver/fhir",
+    "fhirServerBase": "http://ersd-hapi-fhir:8080/fhir",
     "rctcExcelPath": "assets/rctc.xlsx",
     "bundlePath": "assets/bundle.xml",
     "subscriptionCriteria": "Bundle?",
