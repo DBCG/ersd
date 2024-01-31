@@ -41,7 +41,13 @@ body {
    color: #EDAF10;
  }
 
-
+ .link-secondary {
+  color: var(--secondary-color) !important;
+  }
+  
+  .link-secondary:hover {
+    color: var(--secondary-alt-color) !important;
+    }
  
 
 /* Old styles below */
