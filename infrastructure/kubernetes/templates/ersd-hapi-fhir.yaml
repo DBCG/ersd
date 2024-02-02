@@ -35,11 +35,11 @@ spec:
           name: ersd-hapi-fhir
           env:
             - name: DATASOURCE_DRIVER
-              value: org.h2.Driver
+              value: com.mysql.cj.jdbc.Driver
             - name: DATASOURCE_URL
-              value: jdbc:h2:file:/var/lib/jetty/target/database/h2
+              value: jdbc:mysql://ersd-hapi.cdarvwauzkgh.us-east-1.rds.amazonaws.com:3306/hapi_fhir?useSSL=false
             - name: HIBERNATE_DIALECT
-              value: org.hibernate.dialect.H2Dialect
+              value: org.hibernate.dialect.MySQL5Dialect
             - name: SERVER_ADDRESS
               value: http://ersd-hapi-fhir:8080/hapi-fhir-jpaserver/fhir
             - name: DATASOURCE_USERNAME
