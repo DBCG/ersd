@@ -17,7 +17,9 @@
   },
   "private": true,
   "overrides": {
-    "esbuild": "0.19.5"
+    "esbuild": "0.19.5",
+    "axios": "1.6.4",
+    "serialize-javascript": "6.0.2"
   },
   "dependencies": {
     "@angular-devkit/architect": "^0.1601.4",

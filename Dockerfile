@@ -14,11 +14,13 @@ RUN npm install -g @angular/cli@16.1.4
 RUN npm ci
 RUN npm run build:server
 RUN npm run build:client
+RUN npm prune --omit=dev
 
 FROM ubuntu:mantic-20231011
 
 RUN apt-get update && \
-	apt-get install curl -y
+	apt-get install curl -y && \
+	apt-get upgrade -y
 
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
 RUN chmod 500 nsolid_setup_deb.sh
