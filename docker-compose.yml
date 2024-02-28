@@ -1,25 +1,27 @@
 version: '3'
 services:
   ersd-hapi-fhir:
-    image: registry.ruvos.com/ersd/ersd-hapi-fhir
-    build:
-      context: ./apps/hapi-fhir
+    image: hapiproject/hapi:v6.8.0
     ports:
       - 8081:8080
     environment:
-      DATASOURCE_USERNAME: hapi_user
-      DATASOURCE_PASSWORD: S3cretP8ss
-      DATASOURCE_DRIVER: org.h2.Driver
-      DATASOURCE_URL: jdbc:h2:file:/var/lib/jetty/target/database/h2
-      HIBERNATE_DIALECT: org.hibernate.dialect.H2Dialect
-      SERVER_ADDRESS: http://ersd-hapi-fhir:8080/hapi-fhir-jpaserver/fhir
-      EMAIL_FROM: ${ERSD_EMAIL_FROM}
-      EMAIL_HOST: ${ERSD_EMAIL_HOST}
-      EMAIL_PORT: ${ERSD_EMAIL_PORT}
-      EMAIL_USERNAME: ${ERSD_EMAIL_USERNAME}
-      EMAIL_PASSWORD: ${ERSD_EMAIL_PASSWORD}
+      spring.datasource.url: jdbc:mysql://hapi-db:3306/hapi_db
+      # spring.datasource.driverClassName: com.mysql.cj.jdbc.Driver
+      spring.datasource.driverClassName: com.mysql.jdbc.Driver
+      spring.datasource.username: hapi_user
+      spring.datasource.password: S3cretP8ss
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     volumes:
       - hapi-fhir-data:/var/lib/jetty/target
+    depends_on:
+      - hapi-db
+  hapi-db:
+    image: mysql:5.7.43
+    platform: linux/x86_64
+    environment:
+      MYSQL_DATABASE: hapi_db
+      MYSQL_USER: hapi_user
+      MYSQL_PASSWORD: S3cretP8ss
   postgres:
     image: postgres
     ports:
