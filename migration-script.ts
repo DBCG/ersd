@@ -4,11 +4,8 @@
 const axios = require("axios");
 const readline = require("readline");
 
-// const RESOURCES_TO_MIRATE = ["Person", "Subscription"];
-
-const RESOURCES_TO_MIRATE = ["Bundle"];
-
-const BATCH_COUNT = 5;
+const RESOURCES_TO_MIRATE = ["Person", "Subscription", "Bundle"];
+const BATCH_COUNT = (resource) => resource === 'Bundle' ? 5 : 25;
 
 const run = async () => {
   const rl = readline.createInterface({
@@ -18,11 +15,8 @@ const run = async () => {
 
   rl.question("Please enter the Base Fhir Server source URL: ", (inputSourceUrl) => {
     rl.question("Please enter the target URL: ", async (inputTargetUrl) => {
-      // const sourceFhirServerUrl = sanitizeTrailingSlash(inputSourceUrl);
-      // const targetFhirServerUrl = sanitizeTrailingSlash(inputTargetUrl);
-
-      const sourceFhirServerUrl = "http://localhost:8081/hapi-fhir-jpaserver/fhir";
-      const targetFhirServerUrl = "http://localhost:8082/fhir";
+      const sourceFhirServerUrl = sanitizeTrailingSlash(inputSourceUrl);
+      const targetFhirServerUrl = sanitizeTrailingSlash(inputTargetUrl);
 
       if (!checkIfCorrectFhirServer(sourceFhirServerUrl)) {
         throw new Error(`Unable to validate metadata from UR:: ${sourceFhirServerUrl}`, e);
@@ -35,8 +29,9 @@ const run = async () => {
         const resourceCollection = await Promise.allSettled(
           RESOURCES_TO_MIRATE.map((resourceType) => retrieveData(sourceFhirServerUrl, resourceType, []))
         );
-        resourceCollection.forEach(async (resource, i) => {
+        await Promise.allSettled(resourceCollection.map(async (resource, i) => {
           console.log(`Total Resources for '${RESOURCES_TO_MIRATE[i]}' to Migrate:  ${resource?.value?.length}`);
+          if (RESOURCES_TO_MIRATE[i] === 'Bundle') return Promise.resolve(); // Skip migrating Bundle resources
           const transactionBundle = createTransactionBundle(resource?.value);
 
           const response = await axios({
@@ -47,8 +42,29 @@ const run = async () => {
             },
             data: transactionBundle,
           });
+          console.log("Finished migrating resources for: ", RESOURCES_TO_MIRATE[i]);
           console.log(response.status, null, 2);
-        });
+        }));
+
+        const resourceBundleIndex = RESOURCES_TO_MIRATE.findIndex((i) => i === 'Bundle');
+
+        if (resourceBundleIndex > -1) {
+          console.log("Starting migration of Bundle resources...")
+          for (const bundle of resourceCollection[resourceBundleIndex]?.value) {
+            const url = targetFhirServerUrl + "/Bundle/" + bundle?.resource?.id;
+            console.log('PUT URL: ', url)
+            const response = await axios({
+              url,
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              data: bundle?.resource,
+            });
+            console.log("Finished migrating resources for: ", bundle?.resource?.id);
+            console.log(response.status, null, 2);
+          }
+        }
         console.log("************************** Migration Complete **************************");
       } catch (e) {
         console.error("Error migrating resources: ", e);
@@ -72,7 +88,7 @@ const checkIfCorrectFhirServer = async (url) => {
 };
 
 const retrieveData = async (url, resourceType, store) => {
-  let response = await axios({ url: `${url}/${resourceType}?_count=${BATCH_COUNT}&_format=json`, method: "GET" });
+  let response = await axios({ url: `${url}/${resourceType}?_count=${BATCH_COUNT(resourceType)}&_format=json`, method: "GET" });
   let data = response.data;
   store = store.concat(data.entry);
   let isNext = data?.link?.find((link) => link.relation === "next");
@@ -103,7 +119,7 @@ const createTransactionBundle = (entries) => {
   });
   return {
     resourceType: "Bundle",
-    type: "transaction",
+    type: "batch",
     entry,
   };
 };
