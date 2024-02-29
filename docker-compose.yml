@@ -1,71 +1,96 @@
 version: '3'
 services:
   ersd-hapi-fhir:
-    image: hapiproject/hapi:v6.8.0
+    image: registry.ruvos.com/ersd/ersd-hapi-fhir
+    build:
+      context: ./apps/hapi-fhir
+    # image: hapiproject/hapi:v6.8.0
     ports:
       - 8081:8080
     environment:
-      spring.datasource.url: jdbc:mysql://hapi-db:3306/hapi_db
-      # spring.datasource.driverClassName: com.mysql.cj.jdbc.Driver
-      spring.datasource.driverClassName: com.mysql.jdbc.Driver
-      spring.datasource.username: hapi_user
-      spring.datasource.password: S3cretP8ss
-      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-    volumes:
-      - hapi-fhir-data:/var/lib/jetty/target
+      DATASOURCE_USERNAME: hapi_user
+      DATASOURCE_PASSWORD: S3cretP8ss
+      DATASOURCE_DRIVER: com.mysql.jdbc.Driver
+      DATASOURCE_URL: jdbc:mysql://hapi-db:3306/hapi_db?useSSL=false
+      HIBERNATE_DIALECT: org.hibernate.dialect.MySQL5InnoDBDialect
+      SERVER_ADDRESS: http://ersd-hapi-fhir:8080/hapi-fhir-jpaserver/fhir
+      # spring.datasource.url: jdbc:mysql://hapi-db:3306/hapi_db
+      # # spring.datasource.driverClassName: com.mysql.cj.jdbc.Driver
+      # spring.datasource.driverClassName: com.mysql.jdbc.Driver
+      # spring.datasource.username: hapi_user
+      # spring.datasource.password: S3cretP8ss
+      # spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    # volumes:
+      # - hapi-fhir-data:/var/lib/jetty/target
     depends_on:
       - hapi-db
   hapi-db:
     image: mysql:5.7.43
-    platform: linux/x86_64
+    ports:
+      - 3306:3306
     environment:
       MYSQL_DATABASE: hapi_db
       MYSQL_USER: hapi_user
       MYSQL_PASSWORD: S3cretP8ss
+      MYSQL_ROOT_PASSWORD: S3cretP8ss
+
+  ersd-hapi-fhir-new:
+    image: hapiproject/hapi:v6.8.0
+    ports:
+      - 8082:8080
+    environment:
+      spring.datasource.url: jdbc:postgresql://postgres:5432/hapi_db
+      spring.datasource.driverClassName: org.postgresql.Driver
+      spring.datasource.username: hapi_user
+      spring.datasource.password: S3cretP8ss
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQL94Dialect
+      hapi.fhir.client_id_strategy: ANY
+    depends_on:
+      - postgres
   postgres:
     image: postgres
     ports:
       - 5432:5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
-  keycloak:
-    image: quay.io/keycloak/keycloak:21.1.1
-    command: '--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start'
-    ports:
-      - 8085:8080
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL_HOST: postgres
-      KC_DB_SCHEMA: public
-      KC_DB_NAME: keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HTTP_ENABLED: true
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_STRICT: false
-    depends_on:
-      - postgres
-  web:
-    build: .
-    ports:
-      - 3333:3333
-    volumes:
-      - ./dist/apps:/ersd
-      - ./node_modules:/ersd/server/node_modules
-    depends_on:
-      - ersd-hapi-fhir
-      - keycloak
-    environment:
-      AWS_REGION: ${AWS_REGION}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-volumes:
-  hapi-fhir-data:
-  postgres_data:
+      POSTGRES_DB: hapi_db
+      POSTGRES_USER: hapi_user
+      POSTGRES_PASSWORD: S3cretP8ss
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:21.1.1
+  #   command: '--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start'
+  #   ports:
+  #     - 8085:8080
+  #   environment:
+  #     KEYCLOAK_ADMIN: admin
+  #     KEYCLOAK_ADMIN_PASSWORD: admin
+  #     KC_DB: postgres
+  #     KC_DB_URL_HOST: postgres
+  #     KC_DB_SCHEMA: public
+  #     KC_DB_NAME: keycloak
+  #     KC_DB_USERNAME: keycloak
+  #     KC_DB_PASSWORD: password
+  #     KC_HOSTNAME_STRICT_HTTPS: false
+  #     KC_HTTP_ENABLED: true
+  #     KC_HOSTNAME: localhost
+  #     KC_HOSTNAME_STRICT: false
+  #   depends_on:
+  #     - postgres
+  # web:
+    # build: .
+    # ports:
+    #   - 3333:3333
+    # volumes:
+    #   - ./dist/apps:/ersd
+    #   - ./node_modules:/ersd/server/node_modules
+    # depends_on:
+    #   - ersd-hapi-fhir
+    #   - keycloak
+    # environment:
+    #   AWS_REGION: ${AWS_REGION}
+    #   AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+    #   AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+# volumes:
+#   hapi-fhir-data:
+#   postgres_data:
