@@ -126,7 +126,7 @@ export class UploadController {
           })
         })
       }
-    return emails
+    return [...new Set(emails.map(i => i.toLowerCase()))]
   }
 
    @Post('get-emails')
@@ -150,7 +150,7 @@ export class UploadController {
     if (exportTypeOrigin === 'Both') {
       const personEmails = await this.getEmails('Person');
       const subscriptionEmails = await this.getEmails('Subscription');
-      emails = [...new Set([...personEmails, ...subscriptionEmails])] // get unique array of emails
+      emails = [...new Set([...personEmails, ...subscriptionEmails].map(i => i.toLowerCase()))] // get unique array of emails
     } else {
       emails = await this.getEmails(exportTypeOrigin);
     }
