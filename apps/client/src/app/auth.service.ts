@@ -87,42 +87,37 @@ export class AuthService {
         .catch((err) => console.error(err));
     };
 
-    this.keycloakService.isLoggedIn()
-      .then((loggedIn) => {
-        this.loggedIn = loggedIn;
+    this.loggedIn = this.keycloakService.isLoggedIn()
 
-        if (loggedIn) {
-          return Promise.all([
-            this.keycloakService.loadUserProfile(),
-            this.keycloakService.getUserRoles(true)
-          ]);
-        }
-      })
-      .then((data) => {
-        if (data) {
-          this.profile = <KeycloakProfile> data[0];
-          this.roles = <string[]> data[1];
+    return Promise.all([
+      this.keycloakService.loadUserProfile(),
+      this.keycloakService.getUserRoles(true)
+    ])
+    .then((data) => {
+      if (data) {
+        this.profile = <KeycloakProfile> data[0];
+        this.roles = <string[]> data[1];
 
-          const kc = this.keycloakService.getKeycloakInstance();
-          localStorage.setItem('kc.token', kc.token);
-          localStorage.setItem('kc.idToken', kc.idToken);
-          localStorage.setItem('kc.refreshToken', kc.refreshToken);
+        const kc = this.keycloakService.getKeycloakInstance();
+        localStorage.setItem('kc.token', kc.token);
+        localStorage.setItem('kc.idToken', kc.idToken);
+        localStorage.setItem('kc.refreshToken', kc.refreshToken);
 
-          this.httpClient.get<IPerson>('/api/user/me').toPromise()
-            .then((person) => {
-              this.person = person;
-            })
-            .catch((err) => {
-              if (err.status === 404) {
-                createUser();
-              } else {
-                console.error(err);
-              }
-            });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+        this.httpClient.get<IPerson>('/api/user/me').toPromise()
+          .then((person) => {
+            this.person = person;
+          })
+          .catch((err) => {
+            if (err.status === 404) {
+              createUser();
+            } else {
+              console.error(err);
+            }
+          });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+    });
   }
 }

@@ -1,4 +1,3 @@
-version: '4'
 services:
   ersd-hapi-fhir:
     image: hapiproject/hapi:v6.8.0
@@ -34,13 +33,14 @@ services:
       POSTGRES_PASSWORD: password
   keycloak:
     image: quay.io/keycloak/keycloak:21.1.1
-    command: '--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start'
+    command: '--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start --metrics-enabled=true'
     ports:
       - 8085:8080
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: postgres
+      KC_HEALTH_ENABLED: true
       KC_DB_URL_HOST: postgres
       KC_DB_SCHEMA: public
       KC_DB_NAME: keycloak

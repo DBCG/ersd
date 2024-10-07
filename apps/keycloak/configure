@@ -2,25 +2,15 @@
 
 set -e
 
-read -p 'Keycloak Base URL (http://localhost:8085): ' base_url
-read -p 'Username: (admin) ' username
-read -s -p $'Password: (admin) \n' password
-read -p 'Realm: (ersd) ' realm
-read -p 'Client: (ersd-app) ' client
-read -p 'Redirect URIs: (["*"]) ' redirect_uris
-read -p 'Web Origins: (["*"])' web_origins
-read -p 'Non-Admin Username: (johndoe) ' non_admin_username
-read -s -p $'Non-Admin Password: (password) \n' non_admin_password
-
-base_url=${base_url:-'http://localhost:8085'}
-username=${username:-admin}
-password=${password:-admin}
-realm=${realm:-ersd}
-client=${client:-ersd-app}
-redirect_uris=${redirect_uris:-'["*"]'}
-web_origins=${web_origins:-'["*"]'}
-non_admin_username=${non_admin_username:-johndoe}
-non_admin_pswd=${non_admin_password:-password}
+base_url='http://localhost:8085'
+username=admin
+password=admin
+realm=ersd
+client=ersd-app
+redirect_uris='["*"]'
+web_origins='["*"]'
+non_admin_username=johndoe
+non_admin_pswd=password
 
 res=$(curl -sS --data-urlencode 'username='$username --data-urlencode 'password='$password -d 'grant_type=password&client_id=admin-cli' -X POST $base_url/realms/master/protocol/openid-connect/token)
 token=$(echo $res | jq -r '.access_token')
