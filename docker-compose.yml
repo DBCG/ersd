@@ -32,7 +32,7 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
   keycloak:
-    image: quay.io/keycloak/keycloak:21.1.1
+    image: quay.io/keycloak/keycloak:26.2.5
     command: '--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true start --metrics-enabled=true'
     ports:
       - 8085:8080
